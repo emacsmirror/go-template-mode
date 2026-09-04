@@ -1,31 +1,66 @@
 
 
-# <type>(optional scope): <short summary>
+# ==================================================
+# Installed by git-tools (v1.2.3-1-gf515c39-dirty)
+# Managed file: safe to replace by running bin/git-tools again.
+# ==================================================
 #
-# <longer explanation, if necessary, wrapped at 72 chars>
+# <type>(<scope>)!: <subject>
 #
-# Refs: #issue, PR link, etc.
+# <body>
 #
-# --------------------
-# Commit message guidelines:
-# - Use imperative mood (e.g., "add feature" not "added feature")
-# - Subject line ≤ 50 characters
-# - Separate subject from body with a blank line
-# - Wrap body at ~72 characters per line
-# - Explain WHY, not just WHAT
-# - One commit = one logical change
+# <footer>
 #
-# Types:
-#   feat:     new feature
-#   fix:      bug fix
-#   docs:     documentation only
-#   style:    formatting, no code change
-#   refactor: code restructure
-#   perf:     performance improvements
-#   test:     add or modify tests
-#   chore:    tooling, build, CI, dependencies
+# --------------------------------------------------
+# SUBJECT
+# - Imperative mood
+# - Use recommended verbs (see list below)
+# - Full header/title max 68 characters
+# - Subject text max 50 characters
+# - Capitalize first letter
+# - No trailing period
 #
-# Recommended verbs for subject line:
-#   add, remove, fix, update, improve, refactor, use, bump, revert,
-#   document
+# BREAKING CHANGES
+# - Add "!" after type or scope for incompatible changes
+# - Describe migration in footer:
+#   BREAKING CHANGE: <details>
+#
+# BODY
+# - Explain WHY this change is needed
+# - Describe impact, risks, trade-offs
+# - Wrap at 72 characters
+#
+# FOOTER (optional)
+# - BREAKING CHANGE: <details>
+# - Closes: #issue
+# - Refs: #issue / PR
+# - Co-authored-by: Name <email>
+#
+# --------------------------------------------------
+# TYPES
+# feat:     new feature
+# fix:      bug fix
+# refactor: restructure without behavior change
+# perf:     performance improvement
+# docs:     documentation only
+# test:     tests
+# build:    build system / dependencies
+# ci:       CI/CD changes
+# chore:    maintenance
+# style:    formatting only
+# revert:   revert commit
+#
+# --------------------------------------------------
+# RECOMMENDED VERBS
+# add remove fix update improve refactor simplify
+# rename migrate revert bump pin enable disable
+# configure provision optimize
+#
+# --------------------------------------------------
+# One commit = one logical change
+#
+#
+# ==================================================
+# Git status appears below.
+# ==================================================
 #
