@@ -1,5 +1,6 @@
 EMACS ?= emacs
 PKG   := go-template-mode
+SOURCES := $(PKG)-font-lock.el $(PKG).el
 TESTS := tests/$(PKG)-test.el
 
 .PHONY: all compile test clean
@@ -8,7 +9,7 @@ all: compile test
 
 compile:
 	$(EMACS) -Q -batch -L . \
-	  -f batch-byte-compile $(PKG).el
+	  -f batch-byte-compile $(SOURCES)
 
 test:
 	$(EMACS) -Q -batch -L . -L tests \

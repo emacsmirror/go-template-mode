@@ -1,0 +1,185 @@
+{{/*
+Manual visual regression fixture for go-template-mode fontification.
+
+Open this file in Emacs for visual inspection. It intentionally contains
+malformed examples and is not intended for template execution: the referenced
+data and functions do not need to exist.
+
+Expected behavior:
+
+1. Ordinary output receives no template-specific face.
+2. Actions remain visible inside double-quoted HTML attributes.
+3. Strings protect delimiter-looking text inside actions.
+4. Current action words and predefined functions are highlighted.
+5. HTML tag names receive no package-specific face.
+*/}}
+
+==================== Ordinary output text ====================
+
+These are ordinary words, not template syntax:
+if range with end block break continue printf slice eq len $outside
+
+Ordinary quoted output should also remain ordinary output:
+"if printf $quoted {{if .Enabled}}action inside output quotes{{end}}"
+
+==================== Basic actions ====================
+
+{{if .User}}
+  Hello, {{$name := .User.Name}}{{$name}}.
+  {{printf "%s" $name}}
+{{else}}
+  No user was supplied.
+{{end}}
+
+{{with .Profile}}
+  {{print .DisplayName}}
+{{end}}
+
+{{range $index, $item := .Items}}
+  {{printf "%d: %s" $index $item}}
+{{else}}
+  No items.
+{{end}}
+
+==================== Whitespace trimming ====================
+
+Before{{- print "trimmed on both sides" -}}After
+
+The minus sign below is a negative number, not a left trim marker:
+{{-3}}
+
+==================== Template comments ====================
+
+{{/* One-line comment with if, printf, $variable, and "a string". */}}
+
+{{/* A multiline comment.
+Everything here should have the comment face, including {{if .Hidden}},
+HTML-looking text such as <div>, and "quoted text".
+*/}}
+
+{{- /* Trim-marked template comment. */ -}}
+
+These are not valid template comments and should not get a template-comment face:
+plain text /* comment-looking text */
+{{ /* whitespace makes this an ordinary, invalid action */ }}
+
+==================== Strings inside actions ====================
+
+The delimiter-looking text inside each string is data, not an action end:
+{{printf "%s" "double-quoted }} is still string data"}}
+{{printf "%s" `raw }} is still string data`}}
+{{printf "%c" '}'}}
+{{printf "%s" "escaped quote: \"; braces: }}; still data"}}
+
+The real closing delimiter after each string should receive the delimiter face.
+
+==================== HTML attributes ====================
+
+The actions below should override the surrounding HTML string face:
+<div class="{{if .Active}}active{{else}}inactive{{end}}" data-id="{{.ID}}">
+  Attribute action test
+</div>
+
+<input value="{{.Value}}" disabled="{{not .Enabled}}">
+
+This single-quoted attribute is a useful comparison case:
+<a data-label='{{printf "%s" .Label}}'>Label</a>
+
+Actions should remain visible in other quoted output contexts too:
+<script>const enabled = "{{if .Enabled}}yes{{else}}no{{end}}";</script>
+
+==================== Action words ====================
+
+{{define "named-template"}}
+  Named template body.
+{{end}}
+
+{{template "named-template" .}}
+
+{{block "body" .}}
+  Default block body.
+{{end}}
+
+{{range .Items}}
+  {{if .Stop}}{{break}}{{end}}
+  {{if .Skip}}{{continue}}{{end}}
+  {{print .}}
+{{end}}
+
+==================== Predefined functions ====================
+
+Standard predefined functions:
+{{and .A .B}}
+{{html .Markup}}
+{{index .Items 0}}
+{{js .Script}}
+{{len .Items}}
+{{not .Disabled}}
+{{or .A .B}}
+{{print .Value}}
+{{printf "%s" .Value}}
+{{println .Value}}
+{{urlquery .Query}}
+
+{{call .Function .Argument}}
+{{slice .Items 0 2}}
+{{eq .A .B}}
+{{ne .A .B}}
+{{lt .A .B}}
+{{le .A .B}}
+{{gt .A .B}}
+{{ge .A .B}}
+
+Pipeline and parenthesized command:
+{{printf "%s" (index .Values 0) | html}}
+
+==================== Constants and variables ====================
+
+{{if true}}{{print nil}}{{else}}{{print false}}{{end}}
+
+Root and named variables:
+{{$}}
+{{$1}}
+{{$name_2}}
+{{$x.Field}}
+{{$π2}}
+
+Names that only contain a keyword or builtin prefix should not partially match:
+{{myrange .Value}}
+{{printfx .Value}}
+{{length .Value}}
+
+Matching is case-sensitive:
+{{IF .Value}}
+{{Printf .Value}}
+
+==================== Host-owned HTML tag names ====================
+
+These tag names should receive no package-specific face:
+<div>paired</div>
+<br>
+<img src="example.png">
+
+Custom and uppercase tag names are also owned by the host mode:
+<user-card data-id="{{.ID}}">Custom element</user-card>
+<SECTION>Uppercase element</SECTION>
+
+No misleading tag-name prefix should receive a template face:
+<divine>Not a div element</divine>
+<bravo>Not a br element</bravo>
+<article>Neither this name nor its "a" prefix is template syntax</article>
+
+==================== Actions in surrounding markup ====================
+
+<!-- {{if .Debug}}Debug output{{end}} -->
+
+<style>
+  .status::after { content: "{{if .Ready}}ready{{else}}waiting{{end}}"; }
+</style>
+
+==================== Unterminated input ====================
+
+This final construct intentionally has no closing comment delimiter and should
+remain unfontified through the end of the buffer.
+
+{{/* unfinished template comment

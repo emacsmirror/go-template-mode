@@ -1,0 +1,48 @@
+2026-09-04  Robert Charusta  <rch-public@posteo.net>
+
+	Replace global regular expressions with action-aware fontification.
+
+	* go-template-mode-font-lock.el: New file.
+	(go-template-mode-font-lock--double-quoted-special-regexp)
+	(go-template-mode-font-lock--single-quoted-special-regexp): Use literal
+	character classes available in Emacs 28.1.
+	(go-template-mode-font-lock--clear-action-properties): Use text property
+	search primitives available in Emacs 28.1.
+	(go-template-mode-font-lock-install): New current-buffer integration API.
+	(go-template-mode-font-lock-uninstall): Likewise.
+	(go-template-mode-font-lock--scan-quoted)
+	(go-template-mode-font-lock--scan-ordinary): Skip ordinary input runs
+	with search primitives instead of scanning every character in Lisp.
+	Implement complete action, comment, string, trim-marker, variable,
+	field, action-word, constant, and predefined-function scanning with
+	standard Font Lock-managed faces and multiline invalidation.
+	* go-template-mode.el (go-template-mode): Use the shared fontification
+	library.  Disable buffer-wide syntactic strings and remove HTML tag
+	highlighting.  Bump version to 2.0.0.
+	* tests/go-template-mode-test.el: Replace minimal offset-based tests
+	with action-scope, HTML-attribute, vocabulary, malformed-input,
+	lifecycle, and incremental-refontification coverage.
+	* tests/font-lock-manual.gotmpl: New file.  Add a committed manual
+	visual regression fixture.
+	* Makefile (SOURCES): Compile both production Lisp files.
+	* README.org: Document action-scoped behavior, host-mode composition,
+	the shared API, manual visual checks, development commands, and current
+	limitations.
+	* PROVENANCE.md: New file.  Record historical sources and the 2.0.0
+	rewrite boundary.
+	* NEWS: New file.  Record user-visible release changes.
+	* ChangeLog: Rename from CHANGELOG for GNU file-name conventions.
+
+2026-01-25  Robert Charusta  <rch-public@posteo.net>
+
+	* .gitignore: Ignore agent sandbox worktrees.
+	* .gitignore: Ignore .agent patch artifacts.
+	* README.org: Document MELPA installation (use-package).
+
+2026-01-02  Robert Charusta  <rch-public@posteo.net>
+
+	* go-template-mode.el: Initial release.
+	(go-template-mode): New major mode.
+	(go-template-mode--font-lock-comments): New multiline comment matcher.
+	(go-template-mode-font-lock-keywords): Add font-lock rules for Go
+	template delimiters, variables, keywords, builtins, and basic HTML tags.

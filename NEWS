@@ -1,0 +1,62 @@
+go-template-mode NEWS -- history of user-visible changes. -*- outline -*-
+
+Copyright (C) 2026 Robert Charusta
+
+* Noteworthy changes in release 2.0.0 (unreleased)
+
+** Incompatible changes
+
+  - Remove package-specific HTML tag-name highlighting.  Use an HTML major
+    mode with `go-template-helper-mode` when templates are embedded in HTML.
+
+  - Restrict template faces to complete `{{ ... }}` actions.  Ordinary output
+    words that resemble template keywords, functions, or variables are no
+    longer highlighted.
+
+** New features
+
+  - Add action-aware highlighting for current Go template action words,
+    constants, predefined functions, fields, variables, strings, character
+    constants, trim markers, and multiline comments.
+
+  - Add the separately loadable `go-template-mode-font-lock` library for host
+    modes and integrations.  Its install and uninstall functions operate on
+    the current buffer without activating `go-template-mode`.
+
+  - Preserve surrounding host-mode faces while template fontification is
+    active and restore them when shared fontification is removed.
+
+** Bug fixes
+
+  - Keep template actions visible inside double-quoted HTML attributes and
+    other host-language strings.
+
+  - Ignore delimiter-looking text inside template strings and character
+    constants.
+
+  - Clear and restore affected faces after narrow edits to action or comment
+    delimiters.
+
+** Performance
+
+  - Use search-based lexical scanning so large incomplete actions no longer
+    require character-by-character Lisp scans.
+
+  - Use Emacs JIT Lock for demand-driven fontification.  Optional stealth
+    fontification remains a user preference.
+
+** Installation
+
+  - Support the advertised Emacs 28.1 minimum version.
+
+  - Manual installations must place both `go-template-mode.el` and
+    `go-template-mode-font-lock.el` on `load-path`.
+
+* Noteworthy changes in release 1.0.0 (2026-01-02)
+
+** New features
+
+  - Add the initial Go template major mode with highlighting for delimiters,
+    variables, selected keywords and functions, comments, and basic HTML tags.
+
+  - Associate `.gotmpl`, `.tpl`, and `.tmpl` files with `go-template-mode`.
