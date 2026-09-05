@@ -1,97 +1,113 @@
 #+title: go-template-mode
 #+options: toc:t
 
-A lightweight Emacs major mode for editing Go text/template (Go
-templates).
+=go-template-mode= is an Emacs major mode for files written primarily in Go
+=text/template= syntax.  It highlights complete template actions while leaving
+the surrounding output as plain text.
 
-It highlights complete template actions without parsing the surrounding
-output format.  It uses Font Lock's incremental refontification and avoids
-persistent parser caches or external dependencies.
+#+begin_src text
+  {{- if .Enabled }}
+  Hello, {{printf "%s" .Name}}
+  {{- end }}
+#+end_src
 
-Version 2.0.0 is recommended over 1.x for new and existing users.  It fixes
-action scoping and host-language face conflicts and follows the current Go
-template vocabulary.  Users who relied on the old package-specific HTML
-highlighting should use =html-mode= with =go-template-helper-mode=.  Existing
-helper users should upgrade =go-template-mode= first, then upgrade
-=go-template-helper-mode= to version 2.0.0.
+Version 2.0.0 is recommended for new and existing users.  It provides
+action-scoped highlighting, current Go template vocabulary, incremental Font
+Lock integration, and a reusable fontification API.
+
+* Choose the right mode
+
+| Buffer contents                    | Recommended setup                              |
+|------------------------------------+------------------------------------------------|
+| Primarily Go template or plain text | =go-template-mode=                            |
+| HTML containing template actions   | =html-mode= with =go-template-helper-mode=    |
+| Helm or YAML templates             | A YAML mode with =go-template-helper-mode=    |
+
+The companion
+[[https://codeberg.org/rch/go-template-helper-mode][go-template-helper-mode]]
+adds the same template highlighting to another major mode without replacing
+that mode's indentation, comments, keymap, or host-language faces.
 
 * Features
 
-- Highlights template delimiters and whitespace-trim markers
-- Highlights variables, fields, action words, constants, and the standard
-  predefined functions
-- Highlights interpreted strings, raw strings, and character constants
-- Highlights ordinary and trim-marked multiline comments
-- Restricts template highlighting to complete ={{ ... }}= actions
-- Handles delimiter-looking text inside template strings
+- Highlights delimiters and whitespace-trim markers.
+- Highlights variables, fields, action words, constants, strings, character
+  constants, and standard predefined functions.
+- Highlights ordinary and trim-marked multiline template comments.
+- Restricts template faces to complete ={{ ... }}= actions.
+- Ignores delimiter-looking text inside template strings.
+- Uses JIT Lock for incremental, demand-driven fontification.
 
 * Requirements
 
-- Emacs 28.1+
+- Emacs 28.1 or later.
+- No external runtime dependencies.
+
+* Upgrading from 1.x
+
+Version 2.0.0 changes fontification behavior:
+
+- Ordinary output text that resembles a template keyword or function is no
+  longer highlighted.
+- Package-specific HTML tag highlighting was removed.  Use =html-mode= with
+  =go-template-helper-mode= for embedded HTML.
+- Manual installations must include both =go-template-mode.el= and
+  =go-template-mode-font-lock.el=.
+- Existing helper users should upgrade =go-template-mode= first, then upgrade
+  =go-template-helper-mode= to version 2.0.0.
+
+See [[file:NEWS][NEWS]] for the complete user-visible changes.
 
 * Installation
 
-** From MELPA
+** MELPA
 
-After installing from MELPA, enable it in your init:
+Install =go-template-mode= from MELPA or MELPA Stable.  The package supplies
+autoloaded associations for =.gotmpl=, =.tpl=, and =.tmpl=, so no additional
+configuration is required.
+
+At the time of this README update, both archives still exposed the previous
+implementation while publication of 2.0.0 was pending.  Check that the archive
+entry has refreshed before installing.  Until then, use the manual installation
+instructions with the
+[[https://codeberg.org/rch/go-template-mode/src/tag/2.0.0][2.0.0 source tree]].
+
+With =use-package=:
 
 #+begin_src elisp
   (use-package go-template-mode
-    :ensure t
-    :mode (("\\.gotmpl\\'" . go-template-mode)
-           ("\\.tpl\\'" . go-template-mode)
-           ("\\.tmpl\\'" . go-template-mode)))
+    :ensure t)
 #+end_src
 
 ** Manual
 
-1. Put =go-template-mode-font-lock.el= and =go-template-mode.el= in the
-   same directory on your =load-path=.
-2. Add to your init file:
+Place =go-template-mode.el= and =go-template-mode-font-lock.el= in the same
+directory on =load-path=:
 
 #+begin_src elisp
+  (add-to-list 'load-path "/path/to/go-template-mode")
   (require 'go-template-mode)
-#+end_src
-
-File associations for =.gotmpl=, =.tpl=, and =.tmpl= are provided by the mode.
-
-** With use-package (local checkout)
-
-#+begin_src elisp
-  (use-package go-template-mode
-    :load-path "/path/to/repo/"
-    :mode ("\\.\\(gotmpl\\|tpl\\|tmpl\\)\\'" . go-template-mode))
 #+end_src
 
 * Usage
 
-- Open a =.gotmpl=, =.tpl=, or =.tmpl= file to activate the mode.
-- =M-;= uses Go template comment delimiters for convenience: ={{/* ... */}}=
+Open a =.gotmpl=, =.tpl=, or =.tmpl= file to activate the mode.  Use =M-;= to
+insert or edit Go template comments with ={{/* ... */}}= delimiters.
 
-* Helm charts and embedded templates
+** File association overrides
 
-Go templates can be embedded in HTML, YAML, and other formats.  In those
-buffers, keep the format's major mode and add template highlighting with
-the companion minor mode:
+The generic =.tpl= and =.tmpl= extensions do not identify their surrounding
+format.  Since =auto-mode-alist= uses its first matching entry, add a host-mode
+association after package activation when that host should take precedence:
 
-- =go-template-helper-mode=: adds Go template highlighting on top of
-  another major mode without replacing its indentation or comment
-  behavior.
+#+begin_src elisp
+  (add-to-list 'auto-mode-alist '("\\.tpl\\'" . yaml-mode))
+#+end_src
 
-In short:
-- Use =go-template-mode= when the buffer is primarily template syntax or
-  plain output text.
-- Use =html-mode= plus =go-template-helper-mode= for HTML templates.
-- Use a YAML major mode plus =go-template-helper-mode= for Helm templates.
+* Shared fontification API
 
-The generic =.tpl= and =.tmpl= extensions do not identify the surrounding
-format.  Override their file association when a host major mode should take
-precedence.
-
-* Shared fontification
-
-The action-aware fontification layer is available separately for minor
-modes and other integrations:
+Integrations can load the action-aware Font Lock layer without activating the
+major mode:
 
 #+begin_src elisp
   (require 'go-template-mode-font-lock)
@@ -100,42 +116,48 @@ modes and other integrations:
   (go-template-mode-font-lock-uninstall)
 #+end_src
 
-Both functions are idempotent and operate only on the current buffer.  When
-Font Lock is active, uninstalling refontifies the buffer to restore host faces.
-Loading the shared library does not register file extensions or activate
+Both functions are idempotent and affect only the current buffer.  When Font
+Lock is active, uninstalling refontifies the buffer to restore host-language
+faces.  Loading this library alone does not register file extensions or enable
 =go-template-mode=.
 
 * Large files
 
-Emacs normally uses JIT Lock to fontify visible regions on demand instead of
-fontifying the entire buffer when it opens.  This applies to both the major mode
-and integrations using the shared fontification library.
+JIT Lock normally fontifies visible regions on demand rather than processing an
+entire buffer when it opens.  The scanner uses search-based lexical operations
+and does not maintain parser caches or background workers.
 
-Users who want Emacs to fontify unseen regions while idle can enable JIT Lock's
-optional stealth processing in their init file:
+Optional idle-time fontification remains an Emacs user preference:
 
 #+begin_src elisp
   (setq jit-lock-stealth-time 1
         jit-lock-stealth-nice 0.5)
 #+end_src
 
-Stealth processing is cooperative idle work, not a background thread, and is
-therefore left as a user preference.  Jumping directly into an unfontified,
-extremely action-dense multi-megabyte buffer can still pause while the mode
-establishes lexical context.
+Jumping directly into an unfontified, extremely action-dense multi-megabyte
+buffer can still pause while Emacs establishes lexical context.
+
+* Limitations
+
+- Only the default ={{= and =}}= delimiters are supported.
+- The mode intentionally provides no indentation engine.
+- Unterminated actions, strings, comments, and actions with unbalanced
+  parentheses are left unfontified; this is not a full template validator.
+- Nested comments are not supported by Go templates.
+- Application-defined functions are not recognized as predefined functions.
+- HTML, YAML, and other surrounding languages require their own host mode.
 
 * Development
 
-Compile the package and run its ERT suite:
+Compile from source and run the ERT suite:
 
 #+begin_src sh
-  make all
+  make clean all
 #+end_src
 
-Run only the tests or remove generated byte-code files:
+Remove generated byte-code files:
 
 #+begin_src sh
-  make test
   make clean
 #+end_src
 
@@ -144,16 +166,15 @@ Run only the tests or remove generated byte-code files:
 The committed
 [[file:tests/font-lock-manual.gotmpl][manual visual regression fixture]]
 contains representative actions, host-language examples, and intentionally
-malformed input.  It is for visual inspection from a repository checkout, not
-template execution.
+malformed input.  It is for visual inspection, not template execution.
 
-Open it in an isolated Emacs using the major mode:
+Open it with the major mode in an isolated Emacs:
 
 #+begin_src sh
   emacs -Q -L . -l go-template-mode.el tests/font-lock-manual.gotmpl
 #+end_src
 
-To inspect the shared fontification layer over built-in =html-mode=:
+Inspect the shared layer over built-in =html-mode=:
 
 #+begin_src sh
   emacs -Q -L . -l go-template-mode-font-lock.el \
@@ -163,22 +184,14 @@ To inspect the shared fontification layer over built-in =html-mode=:
       (go-template-mode-font-lock-install))'
 #+end_src
 
-User-visible release notes are in =NEWS=.  Detailed source history is in
-=ChangeLog=.
+* Project information
 
-* Limitations
-
-- No indentation engine (intentionally)
-- Only the default ={{= and =}}= delimiters are supported
-- Unterminated actions, strings, and comments and actions with unbalanced
-  parentheses are left unfontified; this mode is not a full syntax validator
-- Nested comments are not supported by Go templates
-- Application-defined template functions are not recognized as predefined
-  functions
-- Surrounding HTML, YAML, and other languages require their own host mode
+- User-visible changes: [[file:NEWS][NEWS]]
+- Detailed source history: [[file:ChangeLog][ChangeLog]]
+- Source history and rewrite boundary: [[file:PROVENANCE.md][PROVENANCE.md]]
+- Issues: [[https://codeberg.org/rch/go-template-mode/issues][Codeberg issue tracker]]
 
 * License
 
-GPL-3.0-or-later. See =COPYING=.
-
-See =PROVENANCE.md= for source-history and rewrite information.
+This project is licensed under GPL-3.0-or-later.  See
+[[file:COPYING][COPYING]] for the license text.

@@ -1,5 +1,10 @@
 2026-09-05  Robert Charusta  <rch-public@posteo.net>
 
+	* README.org: Rewrite around package selection, upgrading, installation,
+	usage, shared integration, limitations, development, and support.
+
+2026-09-05  Robert Charusta  <rch-public@posteo.net>
+
 	* NEWS: Mark release 2.0.0.
 
 2026-09-05  Robert Charusta  <rch-public@posteo.net>
