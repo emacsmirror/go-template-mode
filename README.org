@@ -8,6 +8,13 @@ It highlights complete template actions without parsing the surrounding
 output format.  It uses Font Lock's incremental refontification and avoids
 persistent parser caches or external dependencies.
 
+Version 2.0.0 is recommended over 1.x for new and existing users.  It fixes
+action scoping and host-language face conflicts and follows the current Go
+template vocabulary.  Users who relied on the old package-specific HTML
+highlighting should use =html-mode= with =go-template-helper-mode=.  Existing
+helper users should upgrade =go-template-mode= first, then upgrade
+=go-template-helper-mode= to version 2.0.0.
+
 * Features
 
 - Highlights template delimiters and whitespace-trim markers

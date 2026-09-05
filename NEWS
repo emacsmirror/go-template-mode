@@ -4,6 +4,13 @@ Copyright (C) 2026 Robert Charusta
 
 * Noteworthy changes in release 2.0.0 (unreleased)
 
+** Upgrade guidance
+
+  - Version 2.0.0 is recommended over 1.x for new and existing users.
+
+  - Existing helper users must upgrade `go-template-mode` first, then upgrade
+    `go-template-helper-mode` to version 2.0.0.
+
 ** Incompatible changes
 
   - Remove package-specific HTML tag-name highlighting.  Use an HTML major
